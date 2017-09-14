@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# 指定されたディレクトリ配下のファイル、フォルダ名を全て小文字に変換する
+# bashじゃないと動かない
+# 再帰検索は行わない
+
+# フルパスで指定すること
+target_dir="$1"
+
+if [ ! -d "${target_dir}" ]; then
+  echo "Not Found target_dir : ${target_dir}"
+  exit 1
+fi
+
+dir_list=$(ls -1d ${target_dir}/* | grep -v "adoc" | grep -v "rename.sh")
+
+SAVE_IFS=$IFS
+# ファイル、フォルダ名に空白が入っていた場合の対策
+IFS=$'\n'
+for dir_path in ${dir_list[@]};
+do
+  echo "mv ${dir} ${dir_path%/*}/$(basename ${dir_path} | tr A-Z a-z)"
+  mv "${dir_path}" "${dir_path%/*}/$(basename ${dir_path} | tr A-Z a-z)"
+done
+IFS=$SAVE_IFS
+
+exit 0

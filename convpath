@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "parameter count error"
+  exit -1
+fi
+
+# unix -> windows
+if [ $(uname -s | cut -c 1-5) == 'MINGW' ]; then
+  drive=$(echo $1 | cut -c 2)
+  drive="${drive,,}:"
+  path=$(echo $1 | tr "/" "\\")
+  echo "${drive}${path:2}"
+  exit 0
+
+# windows -> unix
+else
+  drive=$(echo $1 | cut -c 1-1)
+  drive="/${drive,,}"
+  path=$(echo $1 | tr "\\" "/")
+  echo "${drive}${path:2}"
+  exit 0
+fi
+
+echo "no support os $(uname -s)"
+exit -1

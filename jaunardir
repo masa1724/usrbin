@@ -1,0 +1,22 @@
+#!/bin/bash
+
+dir_path="$1"
+
+file_list=$(ls -1d ${dir_path}*.zip)
+
+# フォルダが見つからない場合
+if [ $? != 0 ]; then
+  exit 1
+fi
+
+SAVE_IFS=${IFS}
+IFS=$'\n'
+
+for file_path in ${file_list[@]};
+do
+  unar "${file_path}"
+done
+
+IFS=${SAVE_IFS}
+
+exit 0

@@ -1,0 +1,62 @@
+#!/bin/bash
+function get_img_path() {
+  echo "$1" | cut -c 11- | cut -d'"' -f1
+}
+
+adoc_file=$1
+
+echo "asciidoctor convert ... adoc_file:[${adoc_file}]"
+asciidoctor ${adoc_file}
+
+if [ $? != 0 ]; then
+  exit 1
+fi
+
+# Asciidoctor変換後のHMTL
+#html_file=$1
+html_file="$(echo ${adoc_file} | cut -d'.' -f1).html"
+
+# 改行コード
+new_line_code=$'\n'
+
+echo "html_file:${html_file}"
+
+IFS_SAVE=$IFS
+IFS=${new_line_code}
+
+html_text=$(cat ${html_file})
+html_base64="${html_file}_base64.html"
+echo "" > "${html_base64}"
+
+# 行番号
+declare -i lineNum
+lineNum=1
+
+# htmlファイルを1行ずつ読込む
+for line in ${html_text[@]}
+do
+ # imgタグの場合は、画像をbase64文字列に変換し、srcに設定する
+ if [[ $(echo ${line} | grep "<img src=\"${img_dir}") ]]; then
+   # imgファイルのパス
+   img_path=$(get_img_path "${line}")
+
+   # 拡張子
+   img_ext=${img_path##*.}
+
+   echo "line:${lineNum} base64 convert  ... img_path:[${img_path}], img_ext:[${img_ext}]"
+
+   # base64変換後、文字列
+   img_base64=$(base64 "${img_path}")
+
+   # img src
+   html="<img src=\"data:image/${img_ext};base64,${img_base64}\" alt=\"${img_path}\">"
+
+   echo ${html} >> "${html_base64}"
+ else
+   echo ${line} >> "${html_base64}"
+ fi
+
+ lineNum=${lineNum}+1
+done
+
+IFS=$IFS_SAVE
