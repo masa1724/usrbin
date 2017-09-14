@@ -11,7 +11,6 @@ curl -X POST ${SLACK_POST_URL} \
 -d "as_user=true" \
 -d "text=$1"
 
-
 #特定の相手にtextを送信する場合は以下の通りtextを設定する
 <!channel> チャンネル全体
 <!here> チャンネルのActiveユーザー全体
